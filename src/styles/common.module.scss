@@ -1,1 +1,26 @@
-// TODO
+.content {
+  margin: 5rem 22rem;
+  padding: 0 1rem;
+}
+
+
+.postInfo {
+  font-weight: 400;
+  font-size: 0.875rem;
+  color: var(--info);
+
+  display: flex;
+  align-items: center;
+
+  span {
+    margin-left: 0.5rem;
+    & + svg {
+      margin-left: 1.5rem;
+    }
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}

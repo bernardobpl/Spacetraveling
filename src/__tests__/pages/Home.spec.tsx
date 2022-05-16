@@ -1,6 +1,10 @@
-
-
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 import { GetStaticPropsContext } from 'next';
 import { ParsedUrlQuery } from 'querystring';
 import { RouterContext } from 'next/dist/next-server/lib/router-context';
@@ -56,6 +60,31 @@ const mockedGetByTypeReturn = {
   ],
 };
 
+const mockedGetByTypeFormattedReturn = {
+  next_page: 'link',
+  results: [
+    {
+      uid: 'como-utilizar-hooks',
+      first_publication_date: '15 mar 2021',
+      data: {
+        title: 'Como utilizar Hooks',
+        subtitle: 'Pensando em sincronização em vez de ciclos de vida',
+        author: 'Joseph Oliveira',
+      },
+    },
+    {
+      uid: 'criando-um-app-cra-do-zero',
+      first_publication_date: '25 mar 2021',
+      data: {
+        title: 'Criando um app CRA do zero',
+        subtitle:
+          'Tudo sobre como criar a sua primeira aplicação utilizando Create React App',
+        author: 'Danilo Vieira',
+      },
+    },
+  ],
+};
+
 jest.mock('@prismicio/client');
 jest.mock('../../services/prismic');
 
@@ -94,7 +123,7 @@ describe('Home', () => {
             results: [
               {
                 uid: 'criando-um-app-cra-do-zero',
-                first_publication_date: '2021-03-25T19:27:35+0000',
+                first_publication_date: '25 mar 2021',
                 data: {
                   title: 'Criando um app CRA do zero',
                   subtitle:
@@ -109,7 +138,7 @@ describe('Home', () => {
   });
 
   it('should be able to return prismic posts documents using getStaticProps', async () => {
-    const postsPaginationReturn = mockedGetByTypeReturn;
+    const postsPaginationReturn = mockedGetByTypeFormattedReturn;
 
     const getStaticPropsContext: GetStaticPropsContext<ParsedUrlQuery> = {};
 
@@ -118,7 +147,7 @@ describe('Home', () => {
     )) as GetStaticPropsResult;
 
     expect(response.props.postsPagination.next_page).toEqual(
-      postsPaginationReturn.next_page
+      mockedGetByTypeFormattedReturn.next_page
     );
     expect(response.props.postsPagination.results).toEqual(
       expect.arrayContaining([
@@ -129,7 +158,7 @@ describe('Home', () => {
   });
 
   it('should be able to render posts documents info', () => {
-    const postsPagination = mockedGetByTypeReturn;
+    const postsPagination = mockedGetByTypeFormattedReturn;
 
     render(<App postsPagination={postsPagination} />);
 
@@ -147,7 +176,7 @@ describe('Home', () => {
   });
 
   it('should be able to navigate to post page after a click', () => {
-    const postsPagination = mockedGetByTypeReturn;
+    const postsPagination = mockedGetByTypeFormattedReturn;
 
     render(<App postsPagination={postsPagination} />, {
       wrapper: RouterWrapper,
@@ -174,11 +203,11 @@ describe('Home', () => {
   });
 
   it('should be able to load more posts if available', async () => {
-    const postsPagination = { ...mockedGetByTypeReturn };
+    const postsPagination = { ...mockedGetByTypeFormattedReturn };
     postsPagination.results = [
       {
         uid: 'como-utilizar-hooks',
-        first_publication_date: '2021-03-15T19:25:28+0000',
+        first_publication_date: '15 mar 2021',
         data: {
           title: 'Como utilizar Hooks',
           subtitle: 'Pensando em sincronização em vez de ciclos de vida',
@@ -187,7 +216,7 @@ describe('Home', () => {
       },
     ];
 
-    render(<App postsPagination={postsPagination} />);
+    await act(async () => render(<App postsPagination={postsPagination} />));
 
     screen.getByText('Como utilizar Hooks');
     const loadMorePostsButton = screen.getByText('Carregar mais posts');
@@ -205,7 +234,7 @@ describe('Home', () => {
   });
 
   it('should not be able to load more posts if not available', async () => {
-    const postsPagination = mockedGetByTypeReturn;
+    const postsPagination = mockedGetByTypeFormattedReturn;
     postsPagination.next_page = null;
 
     render(<App postsPagination={postsPagination} />);
