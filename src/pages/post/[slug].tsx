@@ -32,7 +32,6 @@ interface Post {
 
 interface PostProps {
   post: Post;
-  timeToRead: string;
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
@@ -49,48 +48,25 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
   const prismic = getPrismicClient({});
   const { slug } = params;
 
-  const response = await prismic.getByUID('posts', String(slug));
-
-  const post = {
-    first_publication_date: format(
-      new Date(response.first_publication_date),
-      'dd MMM yyyy',
-      { locale: ptBR }
-    ),
-    data: {
-      title: response.data.title,
-      banner: {
-        url: response.data.banner.url,
-      },
-      author: response.data.author,
-      content: response.data.content.map(section => {
-        return {
-          heading: section.heading,
-          body: section.body.map(el => ({ text: el.text })),
-        };
-      }),
-    },
-  };
-
-  const timeToRead = `${Math.round(
-    post.data.content.reduce((time, { body }) => {
-      const words = RichText.asText(body).split(' ').length;
-      const timeForParagraph = words / 200;
-      return time + timeForParagraph;
-    }, 0)
-  )} min`;
-  // console.log(JSON.stringify(post.data.content, null, 2));
+  const post = await prismic.getByUID('posts', String(slug));
 
   return {
     props: {
       post,
-      timeToRead,
     },
   };
 };
 
-export default function Post({ post, timeToRead }: PostProps): JSX.Element {
+export default function Post({ post }: PostProps): JSX.Element {
   const router = useRouter();
+
+  const timeToRead = `${Math.ceil(
+    post.data.content.reduce((totalWords, { heading, body }) => {
+      const headingWords = heading.split(' ').length;
+      const bodyWords = RichText.asText(body).split(' ').length;
+      return totalWords + headingWords + bodyWords;
+    }, 0) / 200
+  )} min`;
 
   if (router.isFallback) {
     return <div>Carregando...</div>;
@@ -112,7 +88,11 @@ export default function Post({ post, timeToRead }: PostProps): JSX.Element {
           <h1>{post.data.title}</h1>
           <div className={commonStyles.postInfo}>
             <FiCalendar />
-            <span>{post.first_publication_date}</span>
+            <span>
+              {format(new Date(post.first_publication_date), 'dd MMM yyyy', {
+                locale: ptBR,
+              })}
+            </span>
             <FiUser />
             <span>{post.data.author}</span>
             <FiClock />

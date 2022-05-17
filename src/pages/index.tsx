@@ -32,30 +32,9 @@ interface HomeProps {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getByType('posts', {
+  const postsPagination = await prismic.getByType('posts', {
     pageSize: 1,
   });
-
-  const posts = postsResponse.results.map(post => {
-    return {
-      uid: post.uid,
-      first_publication_date: format(
-        new Date(post.first_publication_date),
-        'dd MMM yyyy',
-        { locale: ptBR }
-      ),
-      data: {
-        title: post.data.title,
-        subtitle: post.data.subtitle,
-        author: post.data.author,
-      },
-    };
-  });
-
-  const postsPagination = {
-    results: posts,
-    next_page: postsResponse.next_page,
-  };
 
   return {
     props: {
@@ -74,10 +53,10 @@ export default function Home({
   async function handleGetNextPage(): Promise<void> {
     try {
       const response = await fetch(
-        `/api/posts-next-page?next_page=${encodeURIComponent(nextPage)}`
+        `${nextPage}&access_token=${process.env.NEXT_PUBLIC_PRISMIC_ACCESS_TOKEN}`
       );
       const data = await response.json();
-      setPosts(v => [...v, ...(data.posts as Post[])]);
+      setPosts(v => [...v, ...data.results]);
       setNextPage(data.next_page);
     } catch {}
   }
@@ -98,7 +77,13 @@ export default function Home({
 
                 <div className={commonStyles.postInfo}>
                   <FiCalendar />
-                  <span>{post.first_publication_date}</span>
+                  <span>
+                    {format(
+                      new Date(post.first_publication_date),
+                      'dd MMM yyyy',
+                      { locale: ptBR }
+                    )}
+                  </span>
                   <FiUser />
                   <span>{post.data.author}</span>
                 </div>
