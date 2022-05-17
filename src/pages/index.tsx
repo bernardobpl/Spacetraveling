@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
+import { enUS } from 'date-fns/locale';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -42,7 +42,7 @@ export const getStaticProps: GetStaticProps = async () => {
       first_publication_date: format(
         new Date(post.first_publication_date),
         'dd MMM yyyy',
-        { locale: ptBR }
+        { locale: enUS }
       ),
       data: {
         title: post.data.title,
@@ -108,7 +108,7 @@ export default function Home({
 
           {nextPage && (
             <button type="button" onClick={handleGetNextPage}>
-              Carregar mais posts
+              Load more posts
             </button>
           )}
         </div>

@@ -1,5 +1,5 @@
 import format from 'date-fns/format';
-import ptBR from 'date-fns/locale/pt-BR';
+import { enUS } from 'date-fns/locale';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
@@ -55,7 +55,7 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     first_publication_date: format(
       new Date(response.first_publication_date),
       'dd MMM yyyy',
-      { locale: ptBR }
+      { locale: enUS }
     ),
     data: {
       title: response.data.title,

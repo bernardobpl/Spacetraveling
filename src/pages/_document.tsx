@@ -1,9 +1,9 @@
-import Document, { Head, Main, NextScript } from 'next/document';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
 
 export default class MyDocument extends Document {
   render(): JSX.Element {
     return (
-      <>
+      <Html>
         <Head>
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
@@ -15,7 +15,7 @@ export default class MyDocument extends Document {
           <Main />
           <NextScript />
         </body>
-      </>
+      </Html>
     );
   }
 }

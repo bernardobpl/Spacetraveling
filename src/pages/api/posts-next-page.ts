@@ -14,9 +14,7 @@ export default async function getNextPagePosts(
     }
 
     const response = await fetch(
-      `${decodeURIComponent(String(next_page))}&access_token=${
-        process.env.PRISMIC_ACCESS_TOKEN
-      }`
+      `${next_page}&access_token=${process.env.PRISMIC_ACCESS_TOKEN}`
     );
 
     const data = await response.json();
