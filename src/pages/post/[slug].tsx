@@ -72,12 +72,12 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
     },
   };
 
-  const timeToRead = `${Math.round(
-    post.data.content.reduce((time, { body }) => {
-      const words = RichText.asText(body).split(' ').length;
-      const timeForParagraph = words / 200;
-      return time + timeForParagraph;
-    }, 0)
+  const timeToRead = `${Math.ceil(
+    post.data.content.reduce((totalWords, { heading, body }) => {
+      const headingWords = heading.split(' ').length;
+      const bodyWords = RichText.asText(body).split(' ').length;
+      return totalWords + headingWords + bodyWords;
+    }, 0) / 200
   )} min`;
 
   return {
