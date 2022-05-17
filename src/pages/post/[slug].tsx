@@ -79,7 +79,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
       return time + timeForParagraph;
     }, 0)
   )} min`;
-  // console.log(JSON.stringify(post.data.content, null, 2));
 
   return {
     props: {

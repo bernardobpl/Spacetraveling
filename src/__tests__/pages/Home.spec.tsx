@@ -229,8 +229,6 @@ describe('Home', () => {
       },
       { timeout: 200 }
     );
-
-    screen.getByText('Criando um app CRA do zero');
   });
 
   it('should not be able to load more posts if not available', async () => {
